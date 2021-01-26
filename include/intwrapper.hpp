@@ -145,6 +145,13 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Adds a wrapped integer to the the object's value.
+     *
+     * @tparam RhsWrappedT Wrapped integer type
+     * @param rhs Integer wrapper
+     * @return Reference to self
+     */
     template <std::integral RhsWrappedT>
     self_type &operator+=(const IntWrapper<RhsWrappedT> &rhs)
     {
@@ -169,6 +176,13 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Subtracts a wrapped integer from the object's value.
+     *
+     * @tparam RhsWrappedT Wrapped integer type
+     * @param rhs Integer wrapper
+     * @return Reference to self
+     */
     template <std::integral RhsWrappedT>
     self_type &operator-=(const IntWrapper<RhsWrappedT> &rhs)
     {
@@ -178,10 +192,12 @@ public:
     /**
      * @brief Multiplies the object's value by an integer.
      *
+     * @tparam RhsT Right-hand argument's integral type
      * @param rhs Integral operand
      * @return Reference to self
      */
-    self_type &operator*=(const value_type &rhs)
+    template <std::integral RhsT>
+    self_type &operator*=(const RhsT &rhs)
     {
         if (checks::Mul(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator*=(const value_type&)");
@@ -191,6 +207,13 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Multiplies the object's value by a wrapped integer.
+     *
+     * @tparam RhsWrappedT Wrapped integer type
+     * @param rhs Integer wrapper
+     * @return Reference to self
+     */
     template <std::integral RhsWrappedT>
     self_type &operator*=(const IntWrapper<RhsWrappedT> &rhs)
     {
