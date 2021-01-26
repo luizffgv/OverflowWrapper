@@ -85,9 +85,17 @@ public:
     /**
      * @brief Initializes a new instance with the desired value.
      *
-     * @param value Desired value
+     * @tparam ArgT Argument's type
+     * @param val Integral value
      */
-    constexpr IntWrapper(const value_type &value) : value{value} {}
+    template <std::integral ArgT>
+    constexpr IntWrapper(const ArgT &val)
+    {
+        if (checks::Assign<value_type, ArgT>(val))
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::IntWrapper<ArgT>(const ArgT&)");
+
+        value = val;
+    }
 
 
 
@@ -98,46 +106,73 @@ public:
     /**
      * @brief Assigns an integer to the object.
      *
-     * @param rhs Source integer
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
      * @return Reference to self
      */
-    self_type &operator=(const value_type &rhs)
+    template <std::integral RhsT>
+    self_type &operator=(const RhsT &rhs)
     {
+        if (checks::Assign<value_type, RhsT>(rhs))
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator=<RhsT>(const RhsT&)");
+
         value = rhs;
 
         return *this;
     }
 
+    template <std::integral RhsWrappedT>
+    self_type &operator=(const IntWrapper<RhsWrappedT> &rhs)
+    {
+        return operator=(rhs.Get());
+    }
+
     /**
      * @brief Adds an integer to the object's value.
      *
+     * @tparam RhsT Right-hand argument's integral type
      * @param rhs Integral operand
      * @return Reference to self
      */
-    self_type &operator+=(const value_type &rhs)
+    template <std::integral RhsT>
+    self_type &operator+=(const RhsT &rhs)
     {
         if (checks::Sum(value, rhs))
-            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator+=(const value_type &rhs)");
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator+=(const value_type&)");
 
         value += rhs;
 
         return *this;
     }
 
+    template <std::integral RhsWrappedT>
+    self_type &operator+=(const IntWrapper<RhsWrappedT> &rhs)
+    {
+        return operator+=(rhs.Get());
+    }
+
     /**
      * @brief Subtracts an integer from the object's value.
      *
+     * @tparam RhsT Right-hand argument's integral type
      * @param rhs Integral operand
      * @return Reference to self
      */
-    self_type &operator-=(const value_type &rhs)
+    template <std::integral RhsT>
+    self_type &operator-=(const RhsT &rhs)
     {
         if (checks::Sub(value, rhs))
-            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator-=(const value_type &rhs)");
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator-=(const value_type&)");
 
         value -= rhs;
 
         return *this;
+    }
+
+    template <std::integral RhsWrappedT>
+    self_type &operator-=(const IntWrapper<RhsWrappedT> &rhs)
+    {
+        return operator-=(rhs.Get());
     }
 
     /**
@@ -149,11 +184,17 @@ public:
     self_type &operator*=(const value_type &rhs)
     {
         if (checks::Mul(value, rhs))
-            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator*=(const value_type &rhs)");
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator*=(const value_type&)");
 
         value *= rhs;
 
         return *this;
+    }
+
+    template <std::integral RhsWrappedT>
+    self_type &operator*=(const IntWrapper<RhsWrappedT> &rhs)
+    {
+        return operator*=(rhs.Get());
     }
 
     //
@@ -181,7 +222,6 @@ public:
 
 /* ------------------------ Private member variables ------------------------ */
 
-private:
     T value{};
 };
 
@@ -190,40 +230,6 @@ private:
 
 
 /* ----------------------------- Other operators ---------------------------- */
-
-/**
- * @brief Computes the sum of the wrapped value and another integer.
- *
- * @tparam T Integral type of the right-hand operand
- * @param lhs Integer wrapper
- * @param rhs Right-hand integer operand
- * @return Value of the computation
- */
-template <typename T>
-constexpr T operator+(IntWrapper<T> lhs, const T &rhs) { return T(lhs += rhs); }
-
-/**
- * @brief Computes the subtraction of the right-hand integer from the wrapped
- *          value.
- *
- * @tparam T Integral type of the right-hand operand
- * @param lhs Integer wrapper
- * @param rhs Right-hand integer operand
- * @return Value of the computation
- */
-template <typename T>
-constexpr T operator-(IntWrapper<T> lhs, const T &rhs) { return T(lhs -= rhs); }
-
-/**
- * @brief Computes the product of the wrapped value and another integer.
- *
- * @tparam T Integral type of the right-hand operand
- * @param lhs Integer wrapper
- * @param rhs Right-hand integer operand
- * @return Value of the computation
- */
-template <typename T>
-constexpr T operator*(IntWrapper<T> lhs, const T &rhs) { return T(lhs *= rhs); }
 
 //
 // TODO: operator/
