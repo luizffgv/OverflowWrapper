@@ -44,23 +44,21 @@ namespace overflow::checks
 /* -------------------------------------------------------------------------- */
 
 /**
- * @brief Checks if an addition causes integer overflow.
- *        Should work in any implementation.
+ * @brief Checks if a subtraction causes integer overflow.
+ *        Should work in the vast majority of implementations.
  *
- * @tparam T Integer type
+ * @tparam LhsT Left-hand operand's integral type
+ * @tparam RhsT Right-hand operand's integral type
  * @param lhs Left-hand operand
  * @param rhs Right-hand operand
  * @return true Causes integer overflow
  * @return false Does not cause integer overflow
  */
-template <std::integral T>
-[[nodiscard]] constexpr bool Sum(T lhs, T rhs)
+template <std::integral LhsT, std::integral RhsT>
+[[nodiscard]] constexpr bool Sub(const LhsT &lhs, const RhsT &rhs)
 {
-    if (lhs >= 0)
-        return std::numeric_limits<T>::max() - lhs < rhs;
-    if (rhs >= 0)
-        return std::numeric_limits<T>::max() - rhs < lhs;
-    return std::numeric_limits<T>::min() - lhs > rhs;
+    return (rhs < 0 && lhs > std::numeric_limits<LhsT>::max() + rhs
+            || rhs > 0 && lhs < std::numeric_limits<LhsT>::min() + rhs);
 }
 
 
@@ -68,20 +66,29 @@ template <std::integral T>
 
 
 /**
- * @brief Checks if a subtraction causes integer overflow.
+ * @brief Checks if an addition causes integer overflow.
  *        Should work in the vast majority of implementations.
  *
- * @tparam T Integer type
+ * @tparam LhsT Left-hand operand's integral type
+ * @tparam RhsT Right-hand operand's integral type
  * @param lhs Left-hand operand
  * @param rhs Right-hand operand
  * @return true Causes integer overflow
  * @return false Does not cause integer overflow
  */
-template <std::integral T>
-[[nodiscard]] constexpr bool Sub(T lhs, T rhs)
+template <std::integral LhsT, std::integral RhsT>
+[[nodiscard]] constexpr bool Sum(const LhsT &lhs, const RhsT &rhs)
 {
-    return (rhs < 0 && lhs > std::numeric_limits<T>::max() + rhs ||
-            rhs > 0 && lhs < std::numeric_limits<T>::min() + rhs);
+    if (rhs < 0)
+    {
+        if (rhs == std::numeric_limits<RhsT>::min())
+            // Possible overflow when sign is flipped
+            return true;
+        return Sub(lhs, -rhs);
+    }
+    if (lhs >= 0)
+        return std::numeric_limits<LhsT>::max() - lhs < rhs;
+    return std::numeric_limits<LhsT>::max() - rhs < lhs;
 }
 
 
@@ -92,14 +99,15 @@ template <std::integral T>
  * @brief Checks if a multiplication causes integer overflow.
  *        Should work in the vast majority of implementations.
  *
- * @tparam T Integer type
+ * @tparam LhsT Left-hand operand's integral type
+ * @tparam RhsT Right-hand operand's integral type
  * @param lhs Left-hand operand
  * @param rhs Right-hand operand
  * @return true Causes integer overflow
  * @return false Does not cause integer overflow
  */
-template <std::integral T>
-[[nodiscard]] constexpr bool Mul(T lhs, T rhs)
+template <std::integral LhsT, std::integral RhsT>
+[[nodiscard]] constexpr bool Mul(const LhsT &lhs, const RhsT &rhs)
 {
     // TODO: Use a better algorithm
 
@@ -110,19 +118,41 @@ template <std::integral T>
     {
         if (rhs < 0)
         {
-            if (lhs == std::numeric_limits<T>::min() ||
-                rhs == std::numeric_limits<T>::min())
+            if (lhs == std::numeric_limits<LhsT>::min()
+                || rhs == std::numeric_limits<LhsT>::min())
             {
                 return true;
             }
             return Mul(-lhs, -rhs);
         }
         else
-            return std::numeric_limits<T>::min() / lhs < rhs;
+            return std::numeric_limits<LhsT>::min() / lhs < rhs;
     }
     if (rhs < 0)
-        return std::numeric_limits<T>::min() / rhs < lhs;
-    return std::numeric_limits<T>::max() / lhs < rhs;
+        return std::numeric_limits<LhsT>::min() / rhs < lhs;
+    return std::numeric_limits<LhsT>::max() / lhs < rhs;
+}
+
+
+
+
+
+/**
+ * @brief Checks if an assignment causes integer overflow.
+ *        Should work in any implementation.
+ *
+ * @tparam LhsT Left-hand operand's integral type
+ * @tparam RhsT Right-hand operand's integral type
+ * @param lhs Left-hand operand
+ * @param rhs Right-hand operand
+ * @return true Causes integer overflow
+ * @return false Does not cause integer overflow
+ */
+template <std::integral LhsT, std::integral RhsT>
+[[nodiscard]] constexpr bool Assign(const RhsT &rhs)
+{
+    return rhs > std::numeric_limits<LhsT>::max()
+           || rhs < std::numeric_limits<LhsT>::min();
 }
 
 } // namespace overflow::checks
