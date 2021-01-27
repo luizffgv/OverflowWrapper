@@ -224,7 +224,7 @@ public:
     // TODO: operator/=
     //
 
-    constexpr operator T() { return value; }
+    constexpr operator T() const { return value; }
 
 
 
