@@ -220,9 +220,36 @@ public:
         return operator*=(rhs.Get());
     }
 
-    //
-    // TODO: operator/=
-    //
+    /**
+     * @brief Divides the object's value by an integer.
+     *
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
+     * @return Reference to self
+     */
+    template <std::integral RhsT>
+    self_type &operator/=(const RhsT &rhs)
+    {
+        if (checks::Div(value, rhs))
+            throw std::overflow_error("Integer overflow in IntWrapper<T>::operator/=(const value_type&)");
+
+        value *= rhs;
+
+        return *this;
+    }
+
+    /**
+     * @brief Divides the object's value by a wrapped integer.
+     *
+     * @tparam RhsWrappedT Wrapped integer type
+     * @param rhs Integer wrapper
+     * @return Reference to self
+     */
+    template <std::integral RhsWrappedT>
+    self_type &operator/=(const IntWrapper<RhsWrappedT> &rhs)
+    {
+        return operator/=(rhs.Get());
+    }
 
     constexpr operator T() const { return value; }
 
@@ -253,10 +280,6 @@ public:
 
 
 /* Other operators ---------------------------------------------------------- */
-
-//
-// TODO: operator/
-//
 
 /**
  * @brief Increments the wrapped value (prefix).

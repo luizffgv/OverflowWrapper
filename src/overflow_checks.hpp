@@ -138,6 +138,29 @@ template <std::integral LhsT, std::integral RhsT>
 
 
 /**
+ * @brief Checks if a division causes integer overflow.
+ *        Should work in the vast majority of implementations.
+ *
+ * @tparam LhsT Left-hand operand's integral type
+ * @tparam RhsT Right-hand operand's integral type
+ * @param lhs Left-hand operand
+ * @param rhs Right-hand operand
+ * @return true Causes integer overflow
+ * @return false Does not cause integer overflow
+ */
+template <std::integral LhsT, std::integral RhsT>
+[[nodiscard]] constexpr bool Div(const LhsT &lhs, const RhsT &rhs)
+{
+    // TODO: Implement
+
+    return false;
+}
+
+
+
+
+
+/**
  * @brief Checks if an assignment causes integer overflow.
  *        Should work in any implementation.
  *
