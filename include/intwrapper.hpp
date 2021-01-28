@@ -18,7 +18,7 @@
  * @brief Provides a wrapper that provides overflow protection for integral
  *          types.
  * @version 1.0
- * @date 2021-01-26
+ * @date 2021-01-28
  *
  * @copyright Copyright (c) 2021
  */
