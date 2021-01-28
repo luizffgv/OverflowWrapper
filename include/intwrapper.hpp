@@ -41,9 +41,9 @@
 namespace overflow
 {
 
-/* -------------------------------------------------------------------------- */
-/*                                 IntWrapper                                 */
-/* -------------------------------------------------------------------------- */
+// -------------------------------------------------------------------------- >>
+//                                 IntWrapper                                 >>
+// -------------------------------------------------------------------------- >>
 
 /**
  * @brief Wraps around an integral type and provides overflow protection.
@@ -58,7 +58,7 @@ class IntWrapper
 
 
 
-/* Public type aliases ------------------------------------------------------ */
+// Public type aliases ------------------------------------------------------ >>
 
 public:
     /**
@@ -75,7 +75,7 @@ public:
 
 
 
-/* RAII --------------------------------------------------------------------- */
+// RAII --------------------------------------------------------------------- >>
 
     /**
      * @brief Constructs a new instance and initializes value as zero.
@@ -101,7 +101,7 @@ public:
 
 
 
-/* Operator overloads ------------------------------------------------------- */
+// Assignment operator overloads -------------------------------------------- >>
 
     /**
      * @brief Assigns an integer to the object.
@@ -146,19 +146,6 @@ public:
     }
 
     /**
-     * @brief Adds a wrapped integer to the the object's value.
-     *
-     * @tparam RhsWrappedT Wrapped integer type
-     * @param rhs Integer wrapper
-     * @return Reference to self
-     */
-    template <std::integral RhsWrappedT>
-    self_type &operator+=(const IntWrapper<RhsWrappedT> &rhs)
-    {
-        return operator+=(rhs.Get());
-    }
-
-    /**
      * @brief Subtracts an integer from the object's value.
      *
      * @tparam RhsT Right-hand argument's integral type
@@ -174,19 +161,6 @@ public:
         value -= rhs;
 
         return *this;
-    }
-
-    /**
-     * @brief Subtracts a wrapped integer from the object's value.
-     *
-     * @tparam RhsWrappedT Wrapped integer type
-     * @param rhs Integer wrapper
-     * @return Reference to self
-     */
-    template <std::integral RhsWrappedT>
-    self_type &operator-=(const IntWrapper<RhsWrappedT> &rhs)
-    {
-        return operator-=(rhs.Get());
     }
 
     /**
@@ -208,19 +182,6 @@ public:
     }
 
     /**
-     * @brief Multiplies the object's value by a wrapped integer.
-     *
-     * @tparam RhsWrappedT Wrapped integer type
-     * @param rhs Integer wrapper
-     * @return Reference to self
-     */
-    template <std::integral RhsWrappedT>
-    self_type &operator*=(const IntWrapper<RhsWrappedT> &rhs)
-    {
-        return operator*=(rhs.Get());
-    }
-
-    /**
      * @brief Divides the object's value by an integer.
      *
      * @tparam RhsT Right-hand argument's integral type
@@ -233,31 +194,117 @@ public:
         if (checks::Div(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator/=(const value_type&)");
 
-        value *= rhs;
+        value /= rhs;
 
         return *this;
     }
 
     /**
-     * @brief Divides the object's value by a wrapped integer.
+     * @brief Bitwise AND of the object's value and an integer.
      *
-     * @tparam RhsWrappedT Wrapped integer type
-     * @param rhs Integer wrapper
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
      * @return Reference to self
      */
-    template <std::integral RhsWrappedT>
-    self_type &operator/=(const IntWrapper<RhsWrappedT> &rhs)
+    template <std::integral RhsT>
+    self_type &operator&=(const RhsT &rhs)
     {
-        return operator/=(rhs.Get());
+        value &= rhs;
+
+        return *this;
     }
 
+    /**
+     * @brief Bitwise XOR of the object's value and an integer.
+     *
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
+     * @return Reference to self
+     */
+    template <std::integral RhsT>
+    self_type &operator^=(const RhsT &rhs)
+    {
+        value ^= rhs;
+
+        return *this;
+    }
+
+    /**
+     * @brief Bitwise OR of the object's value and an integer.
+     *
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
+     * @return Reference to self
+     */
+    template <std::integral RhsT>
+    self_type &operator|=(const RhsT &rhs)
+    {
+        value |= rhs;
+
+        return *this;
+    }
+
+    /**
+     * @brief Bitwise left shift of the object's value and an integer.
+     *
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
+     * @return Reference to self
+     */
+    template <std::integral RhsT>
+    self_type &operator<<=(const RhsT &rhs)
+    {
+        value <<= rhs;
+
+        return *this;
+    }
+
+    /**
+     * @brief Bitwise right shift of the object's value and an integer.
+     *
+     * @tparam RhsT Right-hand argument's integral type
+     * @param rhs Integral operand
+     * @return Reference to self
+     */
+    template <std::integral RhsT>
+    self_type &operator>>=(const RhsT &rhs)
+    {
+        value >>= rhs;
+
+        return *this;
+    }
+
+
+
+
+
+// Unary operators ---------------------------------------------------------- >>
+
+    /**
+     * @brief Bitwise NOT of the object's value.
+     *
+     * @return Reference to self
+     */
+    self_type operator~() const { return ~value; }
+
+
+
+
+
+// Conversion operators ----------------------------------------------------- >>
+
+    /**
+     * @brief Converts the wrapper to the wrapped type.
+     *
+     * @return Stored value
+     */
     constexpr operator T() const { return value; }
 
 
 
 
 
-/* Getters and setters ------------------------------------------------------ */
+// Getters and setters ------------------------------------------------------ >>
 
     /**
      * @brief Returns the wrapper's stored value.
@@ -270,7 +317,9 @@ public:
 
 
 
-/* Private member variables ------------------------------------------------- */
+// Private member variables ------------------------------------------------- >>
+
+private:
 
     T value{};
 };
@@ -279,7 +328,138 @@ public:
 
 
 
-/* Other operators ---------------------------------------------------------- */
+
+
+
+
+
+// Other operators ---------------------------------------------------------- >>
+
+/**
+ * @brief Adds a wrapped integer to the the object's value.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integer wrapper
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator+=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs += rhs.Get();
+}
+
+/**
+ * @brief Subtracts a wrapped integer from the object's value.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integer wrapper
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator-=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs -= rhs.Get();
+}
+
+/**
+ * @brief Multiplies the object's value by a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integer wrapper
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator*=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs *= rhs.Get();
+}
+
+/**
+ * @brief Divides the object's value by a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integer wrapper
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator/=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs /= rhs.Get();
+}
+
+/**
+ * @brief Bitwise AND of the object's value and a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integral operand
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator&=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs &= rhs.Get();
+}
+
+/**
+ * @brief Bitwise XOR of the object's value and a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integral operand
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator^=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs ^= rhs.Get();
+}
+
+/**
+ * @brief Bitwise OR of the object's value and a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integral operand
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator|=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs |= rhs.Get();
+}
+
+/**
+ * @brief Bitwise left shift of the object's value and a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integral operand
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator<<=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs <<= rhs.Get();
+}
+
+/**
+ * @brief Bitwise right shift of the object's value and a wrapped integer.
+ *
+ * @tparam RhsWrappedT Wrapped integer type
+ * @param rhs Integral operand
+ * @return Reference to self
+ */
+template <std::integral LhsWrappedT, std::integral RhsWrappedT>
+auto &operator>>=(IntWrapper<LhsWrappedT> &lhs,
+                    const IntWrapper<RhsWrappedT> &rhs)
+{
+    return lhs >>= rhs.Get();
+}
 
 /**
  * @brief Increments the wrapped value (prefix).
