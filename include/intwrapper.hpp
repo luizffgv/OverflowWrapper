@@ -111,7 +111,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator=(const RhsT &rhs)
+    constexpr self_type &operator=(const RhsT &rhs)
     {
         if (checks::Assign<value_type, RhsT>(rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator=<RhsT>(const RhsT&)");
@@ -122,7 +122,7 @@ public:
     }
 
     template <std::integral RhsWrappedT>
-    self_type &operator=(const IntWrapper<RhsWrappedT> &rhs)
+    constexpr self_type &operator=(const IntWrapper<RhsWrappedT> &rhs)
     {
         return operator=(rhs.Get());
     }
@@ -135,7 +135,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator+=(const RhsT &rhs)
+    constexpr self_type &operator+=(const RhsT &rhs)
     {
         if (checks::Sum(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator+=(const value_type&)");
@@ -153,7 +153,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator-=(const RhsT &rhs)
+    constexpr self_type &operator-=(const RhsT &rhs)
     {
         if (checks::Sub(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator-=(const value_type&)");
@@ -171,7 +171,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator*=(const RhsT &rhs)
+    constexpr self_type &operator*=(const RhsT &rhs)
     {
         if (checks::Mul(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator*=(const value_type&)");
@@ -189,7 +189,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator/=(const RhsT &rhs)
+    constexpr self_type &operator/=(const RhsT &rhs)
     {
         if (checks::Div(value, rhs))
             throw std::overflow_error("Integer overflow in IntWrapper<T>::operator/=(const value_type&)");
@@ -207,7 +207,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator&=(const RhsT &rhs)
+    constexpr self_type &operator&=(const RhsT &rhs)
     {
         value &= rhs;
 
@@ -222,7 +222,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator^=(const RhsT &rhs)
+    constexpr self_type &operator^=(const RhsT &rhs)
     {
         value ^= rhs;
 
@@ -237,7 +237,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator|=(const RhsT &rhs)
+    constexpr self_type &operator|=(const RhsT &rhs)
     {
         value |= rhs;
 
@@ -252,7 +252,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator<<=(const RhsT &rhs)
+    constexpr self_type &operator<<=(const RhsT &rhs)
     {
         value <<= rhs;
 
@@ -267,7 +267,7 @@ public:
      * @return Reference to self
      */
     template <std::integral RhsT>
-    self_type &operator>>=(const RhsT &rhs)
+    constexpr self_type &operator>>=(const RhsT &rhs)
     {
         value >>= rhs;
 
@@ -285,7 +285,23 @@ public:
      *
      * @return Reference to self
      */
-    self_type operator~() const { return ~value; }
+    constexpr self_type operator~() const { return ~value; }
+
+    /**
+     * @brief Gets read-only address of the stored value.
+     *
+     * @return Pointer to the const stored value
+     */
+    constexpr const T *operator&() const { return &value; }
+
+    // Not sure if there is any reason to use constexpr here
+
+    /**
+     * @brief Gets the address of the stored value.
+     *
+     * @return Pointer to the stored value
+     */
+    constexpr T *operator&() { return &value; }
 
 
 
@@ -307,11 +323,18 @@ public:
 // Getters and setters ------------------------------------------------------ >>
 
     /**
-     * @brief Returns the wrapper's stored value.
+     * @brief Returns a const reference to the wrapper's stored value.
      *
-     * @return Stored value
+     * @return Const reference to the stored value
      */
-    constexpr T Get() const { return value; }
+    constexpr const T &Get() const { return value; }
+
+    /**
+     * @brief Returns a reference to the wrapper's stored value.
+     *
+     * @return Reference to the stored value
+     */
+    constexpr T &Get() { return value; }
 
 
 
@@ -343,7 +366,7 @@ private:
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator+=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator+=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs += rhs.Get();
@@ -357,7 +380,7 @@ auto &operator+=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator-=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator-=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs -= rhs.Get();
@@ -371,7 +394,7 @@ auto &operator-=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator*=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator*=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs *= rhs.Get();
@@ -385,7 +408,7 @@ auto &operator*=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator/=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator/=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs /= rhs.Get();
@@ -399,7 +422,7 @@ auto &operator/=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator&=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator&=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs &= rhs.Get();
@@ -413,7 +436,7 @@ auto &operator&=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator^=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator^=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs ^= rhs.Get();
@@ -427,7 +450,7 @@ auto &operator^=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator|=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator|=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs |= rhs.Get();
@@ -441,7 +464,7 @@ auto &operator|=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator<<=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator<<=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs <<= rhs.Get();
@@ -455,7 +478,7 @@ auto &operator<<=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to self
  */
 template <std::integral LhsWrappedT, std::integral RhsWrappedT>
-auto &operator>>=(IntWrapper<LhsWrappedT> &lhs,
+constexpr auto &operator>>=(IntWrapper<LhsWrappedT> &lhs,
                     const IntWrapper<RhsWrappedT> &rhs)
 {
     return lhs >>= rhs.Get();
@@ -469,7 +492,7 @@ auto &operator>>=(IntWrapper<LhsWrappedT> &lhs,
  * @return Reference to the operand
  */
 template <typename T>
-IntWrapper<T> &operator++(IntWrapper<T> &operand) { return operand += 1; }
+constexpr IntWrapper<T> &operator++(IntWrapper<T> &operand) { return operand += 1; }
 
 /**
  * @brief Increments the wrapped value (postfix).
@@ -479,7 +502,7 @@ IntWrapper<T> &operator++(IntWrapper<T> &operand) { return operand += 1; }
  * @return Copy of the operand before incrementing
  */
 template <typename T>
-IntWrapper<T> operator++(IntWrapper<T> &operand, int)
+constexpr IntWrapper<T> operator++(IntWrapper<T> &operand, int)
 {
     IntWrapper<T> retval{operand};
     ++operand;
@@ -494,7 +517,7 @@ IntWrapper<T> operator++(IntWrapper<T> &operand, int)
  * @return Reference to the operand
  */
 template <typename T>
-IntWrapper<T> &operator--(IntWrapper<T> &operand) { return operand -= 1; }
+constexpr IntWrapper<T> &operator--(IntWrapper<T> &operand) { return operand -= 1; }
 
 /**
  * @brief Decrements the wrapped value (postfix).
@@ -504,7 +527,7 @@ IntWrapper<T> &operator--(IntWrapper<T> &operand) { return operand -= 1; }
  * @return Copy of the operand before decrementing
  */
 template <typename T>
-IntWrapper<T> operator--(IntWrapper<T> &operand, int)
+constexpr IntWrapper<T> operator--(IntWrapper<T> &operand, int)
 {
     IntWrapper<T> retval{operand};
     --operand;
